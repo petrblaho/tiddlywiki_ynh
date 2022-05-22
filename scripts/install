@@ -93,6 +93,30 @@ ynh_script_progression --message="Configuring NGINX web server..." --weight=1
 ynh_add_nginx_config
 
 #=================================================
+# CREATE DATA DIRECTORY
+#=================================================
+ynh_script_progression --message="Creating a data directory..." --time --weight=1
+
+datadir=/home/yunohost.app/$app
+ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+
+mkdir -p $datadir/{plugin,theme,language,edition}
+
+chmod 750 "$datadir"
+chmod -R o-rwx "$datadir"
+chown -R $app:www-data "$datadir"
+
+#=================================================
+# ADD A CONFIGURATION
+#=================================================
+ynh_script_progression --message="Adding a configuration file..." --weight=1
+
+ynh_add_config --template="../conf/.env" --destination="$final_path/.env"
+
+chmod 400 "$final_path/.env"
+chown $app:$app "$final_path/.env"
+
+#=================================================
 # SPECIFIC SETUP
 #=================================================
 ynh_script_progression --message="Configuring TiddlyWiki..." --weight=2
@@ -101,6 +125,7 @@ pushd $final_path
 	ynh_use_nodejs
 	npm -g install tiddlywiki@${tiddlywiki_version}
 	ynh_exec_as $app env $ynh_node_load_PATH tiddlywiki mynewwiki --init server
+	ynh_exec_as $app env $ynh_node_load_PATH tiddlywiki mynewwiki --build index
 popd
 
 #=================================================
