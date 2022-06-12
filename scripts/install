@@ -102,7 +102,8 @@ ynh_script_progression --message="Configuring TiddlyWiki..." --weight=2
 
 pushd $final_path
 	ynh_use_nodejs
-	npm install -g tiddlywiki
+	npm install npm@latest --location=global
+	npm install tiddlywiki@${tiddlywiki_version} --location=global
 	ynh_exec_as $app env $ynh_node_load_PATH tiddlywiki mynewwiki --init server
 popd
 
@@ -111,9 +112,16 @@ popd
 #=================================================
 ynh_script_progression --message="Configuring a systemd service..." --weight=1
 
-ynh_replace_string --match_string="__ENV_PATH__" --replace_string="$PATH" --target_file=../conf/systemd.service
-
+env_path="$PATH"
 ynh_add_systemd_config
+
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+ynh_script_progression --message="Configuring log rotation..." --weight=1
+
+# Use logrotate to manage application logfile(s)
+ynh_use_logrotate
 
 #=================================================
 # ADVERTISE SERVICE IN ADMIN PANEL
