@@ -19,7 +19,7 @@ code = "https://github.com/Jermolene/TiddlyWiki5"
 [integration]
 yunohost = ">= 11.1.15"
 architectures = "all"
-multi_instance = false
+multi_instance = true
 ldap = false
 sso = false
 disk = "50M"
